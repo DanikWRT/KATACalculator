@@ -1,10 +1,13 @@
 public class Main {
     public static void main(String[] args) throws Exception {
         java.util.Scanner scan = new java.util.Scanner(System.in);
-        System.out.println("Введите математическую операцию между двумя числами от 1 до 10: ");
-        String mathOperation = scan.nextLine();
-        System.out.println(calc(mathOperation));
-        scan.close();
+        while (true) {
+            System.out.println("Введите математическую операцию между двумя числами от 1 до 10: ");
+            String mathOperation = scan.nextLine();
+            System.out.println(calc(mathOperation));
+            //scan.close();
+        }
+
     }
     public static String calc(String answer) throws Exception {
         String [] expression;
@@ -19,11 +22,32 @@ public class Main {
         }
         expression = answer.split("[*/+-]");
         if ((operator == ' ') || (expression.length > 2)) throw new Exception("т.к. формат математической операции не удовлетворяет заданию - два операнда и один оператор (+, -, /, *)");
-        System.out.println(operator);
         expression[0] = expression[0].trim().toUpperCase();
         expression[1] = expression[1].trim().toUpperCase();
         byte romanCheck = 0;
-        answer = arabToRoman(96);
+        for(int i = 0; i<2; i++){
+            try {
+                if (Integer.parseInt(expression[i]) > 10 || Integer.parseInt(expression[i]) < 1) throw new Exception("т.к. число не может быть больше 10 или меньше 1");
+            }
+            catch (NumberFormatException ex){
+                ++romanCheck;
+                expression[i] = romanToArab(expression[i]);
+            }
+        }
+        if (romanCheck == 1) throw new Exception("т.к. используются одновременно разные системы счисления");
+        int result = 0;
+        switch (operator) {
+            case '+' -> result = Integer.parseInt(expression[0]) + Integer.parseInt(expression[1]);
+            case '-' -> {
+                result = Integer.parseInt(expression[0]) - Integer.parseInt(expression[1]);
+                if (romanCheck == 2 && (Integer.parseInt(expression[0]) - Integer.parseInt(expression[1])) <1)
+                    throw new Exception("т.к. в Римской системе исчесления нет 0 и отрицательных чисел");
+            }
+            case '*' -> result = Integer.parseInt(expression[0]) * Integer.parseInt(expression[1]);
+            case '/' -> result = Integer.parseInt(expression[0]) / Integer.parseInt(expression[1]);
+        }
+        if (romanCheck == 2) answer = arabToRoman(result);
+        else answer = Integer.toString(result);
         return answer;
     }
     public static String romanToArab(String string) throws Exception {
